@@ -64,7 +64,7 @@ function onTick()
 
 
 	if(lock and not p_lock)then
-		target_coords = calculate_new_point(aircraft_coords,roll,yaw,pitch,laser_d,vertical_offset,horizontal_offset)
+		target_coords = calculate_new_point(aircraft_coords,pitch,yaw,roll,laser_d,vertical_offset,horizontal_offset)
 		target_x = target_coords[1]
 		target_y = target_coords[2]
 		target_z = target_coords[3]
@@ -111,22 +111,22 @@ function rotation_matrix(pitch, yaw, roll)
     -- Rotation matrix for pitch (around x-axis)
     local R_x = {
         {1, 0, 0},
-        {0, cos(pitch), -sin(pitch)},
-        {0, sin(pitch), cos(pitch)}
+        {0, -cos(roll), sin(roll)},
+        {0, sin(roll), cos(roll)}
     }
 
     -- Rotation matrix for yaw (around z-axis)
     local R_y = {
         {cos(yaw), -sin(yaw), 0},
-        {sin(yaw), cos(yaw), 0},
+        {-sin(yaw), -cos(yaw), 0},
         {0, 0, 1}
     }
 
     -- Rotation matrix for roll (around y-axis)
     local R_z = {
-        {cos(roll), 0, sin(roll)},
-        {0, 1, 0},
-        {-sin(roll), 0, cos(roll)}
+        {cos(pitch), 0, sin(pitch)},
+        {0, -1, 0},
+        {-sin(pitch), 0, cos(pitch)}
     }
 
     -- Combine rotations R = R_y * R_z * R_x
@@ -144,8 +144,8 @@ function rotation_matrix(pitch, yaw, roll)
         return C
     end
 
-    local R_yz = mat_mult(R_y, R_z)
-    local R = mat_mult(R_yz, R_x)
+    local R_yx = mat_mult(R_y, R_x)
+    local R = mat_mult(R_yx, R_z)
     return R
 end
 
@@ -175,7 +175,7 @@ function calculate_new_point(aircraft_coords, pitch, yaw, roll, distance, vertic
 
     -- Calculate final coordinates
     local x = x0 + P_global[1]
-    local y = y0 - P_global[2]
+    local y = y0 + P_global[2]
     local z = z0 + P_global[3]
 
     return {x, y, z}

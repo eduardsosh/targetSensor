@@ -1,28 +1,28 @@
 
 
-local function rotation_matrix(pitch, yaw, roll)
+function rotation_matrix(pitch, yaw, roll)
     local cos = math.cos
     local sin = math.sin
 
     -- Rotation matrix for pitch (around x-axis)
     local R_x = {
         {1, 0, 0},
-        {0, cos(pitch), -sin(pitch)},
-        {0, sin(pitch), cos(pitch)}
+        {0, -cos(roll), sin(roll)},
+        {0, sin(roll), cos(roll)}
     }
 
     -- Rotation matrix for yaw (around z-axis)
     local R_y = {
         {cos(yaw), -sin(yaw), 0},
-        {sin(yaw), cos(yaw), 0},
+        {-sin(yaw), -cos(yaw), 0},
         {0, 0, 1}
     }
 
     -- Rotation matrix for roll (around y-axis)
     local R_z = {
-        {cos(roll), 0, sin(roll)},
-        {0, 1, 0},
-        {-sin(roll), 0, cos(roll)}
+        {cos(pitch), 0, sin(pitch)},
+        {0, -1, 0},
+        {-sin(pitch), 0, cos(pitch)}
     }
 
     -- Combine rotations R = R_y * R_z * R_x
@@ -40,8 +40,8 @@ local function rotation_matrix(pitch, yaw, roll)
         return C
     end
 
-    local R_yz = mat_mult(R_y, R_z)
-    local R = mat_mult(R_yz, R_x)
+    local R_yx = mat_mult(R_y, R_x)
+    local R = mat_mult(R_yx, R_z)
     return R
 end
 
@@ -122,9 +122,9 @@ function transpose_matrix(M)
     return T
 end
 
---[[
+
 -- Example usage
-compass = 0
+compass = -0.25
 local aircraft_coords = {0, 0, 10} -- Aircraft coordinates (x, y, z)
 local pitch = math.rad(0) -- Pitch in radians
 --local yaw = math.rad() -- Yaw (heading) in radians
@@ -134,13 +134,14 @@ print(yaw)
 local roll = math.rad(0) -- Roll in radians
 local distance = 10 -- Distance to the ground point in meters
 local vertical_offset = math.rad(0) -- Vertical offset from the nose in radians
-local horizontal_offset = math.rad(0) -- Horizontal offset from the nose in radians
+local horizontal_offset = math.rad(45) -- Horizontal offset from the nose in radians
 
---local ground_point = calculate_new_point(aircraft_coords, pitch, yaw, roll, distance, vertical_offset, horizontal_offset)
----print("x: ", string.format("%.2f",ground_point[1]),"\ny: ", string.format("%.2f",ground_point[2]),"\nz: ", string.format("%.2f",ground_point[3]))
---]]
+local ground_point = calculate_new_point(aircraft_coords, pitch, yaw, roll, distance, vertical_offset, horizontal_offset)
+print("x: ", string.format("%.2f",ground_point[1]),"\ny: ", string.format("%.2f",ground_point[2]),"\nz: ", string.format("%.2f",ground_point[3]))
+
 
 -- Example usage
+--[[
 local aircraft_coords = {0, 0, 10} -- Aircraft coordinates (x, y, z)
 local pitch = math.rad(-45) -- Pitch in radians
 local compass = -0.25
@@ -154,3 +155,4 @@ print("Vertical offset (deg):", math.deg(vertical_offset))
 print("Horizontal offset (deg):", math.deg(horizontal_offset))
 
 
+]]--
